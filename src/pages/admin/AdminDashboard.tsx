@@ -112,7 +112,7 @@ export function AdminDashboard() {
           </ResponsiveContainer>
           <div className="flex gap-4 justify-center mt-2">
             <div className="flex items-center gap-1.5 text-xs"><div className="w-3 h-3 rounded-full bg-turquoise-600" /><span className="text-navy-600">Verifications</span></div>
-            <div className="flex items-center gap-1.5 text-xs"><div className="w-3 h-3 rounded-full bg-navy-900" /><span className="text-navy-600">Bookings</span></div>
+            <div className="flex items-center gap-1.5 text-xs"><div className="w-3 h-3 rounded-full bg-accent-500" /><span className="text-navy-600">Bookings</span></div>
           </div>
         </Card>
 

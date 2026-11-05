@@ -114,9 +114,9 @@ export function TravelerIdentity() {
         {/* Digital ID Card */}
         <div className="lg:col-span-1">
           <div className="card overflow-hidden sticky top-24">
-            <div className="bg-gradient-to-br from-navy-800 via-navy-900 to-navy-950 p-6 text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-turquoise-500/20 rounded-full blur-3xl" />
-              <div className="absolute bottom-0 left-0 w-32 h-32 bg-turquoise-400/10 rounded-full blur-2xl" />
+            <div className="passport-cover p-6 relative overflow-hidden">
+              <div className="absolute inset-0 paper-grid opacity-[0.07]" />
+              <div className="absolute -top-16 -right-16 w-48 h-48 rounded-full border border-gold/30" />
 
               <div className="relative">
                 <div className="flex items-center justify-between mb-6">

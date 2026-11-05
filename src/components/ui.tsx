@@ -74,7 +74,7 @@ export function Modal({ open, onClose, title, children, maxWidth = 'max-w-lg' }:
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in">
-      <div className="absolute inset-0 bg-navy-900/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-overlay backdrop-blur-sm" onClick={onClose} />
       <div className={`relative card w-full ${maxWidth} max-h-[90vh] overflow-y-auto scrollbar-thin animate-scale-in`}>
         <div className="flex items-center justify-between p-6 border-b border-navy-100">
           <h2 className="text-lg font-bold text-navy-900">{title}</h2>
@@ -90,9 +90,9 @@ export function Modal({ open, onClose, title, children, maxWidth = 'max-w-lg' }:
 
 export function Toast({ message, type = 'success', onClose }: { message: string; type?: 'success' | 'error' | 'info'; onClose: () => void }) {
   const colors = {
-    success: 'bg-turquoise-600',
+    success: 'bg-turquoise-700',
     error: 'bg-red-500',
-    info: 'bg-navy-800',
+    info: 'bg-night-sky',
   };
   return (
     <div className="fixed top-6 right-6 z-50 animate-slide-down">

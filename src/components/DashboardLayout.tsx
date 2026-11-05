@@ -114,7 +114,7 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
       {/* Overlay for mobile */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-30 bg-navy-900/50 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 z-30 bg-overlay backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Main content */}
