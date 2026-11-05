@@ -420,9 +420,12 @@
   }
 }
 
-/* White surfaces from the original pages follow the paper card colour */
-.bg-white { background-color: var(--surface); }
-.bg-white\/80, .bg-white\/70 { background-color: color-mix(in oklab, var(--surface) 82%, transparent); }
+/* White surfaces from the original pages follow the paper card colour (kept in the
+   utilities layer so hover variants still win) */
+@layer utilities {
+  .bg-white { background-color: var(--surface); }
+  .bg-white\/80, .bg-white\/70 { background-color: color-mix(in oklab, var(--surface) 82%, transparent); }
+}
 
 /* Light text and labels inside the passport cover */
 .passport-cover .text-navy-400 { color: oklch(0.85 0.03 170 / 0.7); }
