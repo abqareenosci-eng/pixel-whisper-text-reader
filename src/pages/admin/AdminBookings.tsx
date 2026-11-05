@@ -42,7 +42,7 @@ export function AdminBookings() {
     const reason = decision === 'rejected' ? window.prompt('Reason for rejecting this payment (optional):') : null;
     if (decision === 'rejected' && reason === null) return;
     setWorkingId(booking.id);
-    const { error } = await supabase.rpc('review_booking_payment', { _booking_id: booking.id, _decision: decision, _reason: reason });
+    const { error } = await supabase.rpc('review_booking_payment', { _booking_id: booking.id, _decision: decision, _reason: reason ?? undefined });
     setWorkingId(null);
     if (error) { window.alert(error.message); return; }
     setBookings((prev) => prev.map((item) => item.id === booking.id ? { ...item, payment_status: decision, paid_at: decision === 'paid' ? new Date().toISOString() : null, payment_rejection_reason: decision === 'rejected' ? (reason || null) : null } : item));

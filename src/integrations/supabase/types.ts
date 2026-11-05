@@ -29,8 +29,13 @@ export type Database = {
           origin: string | null
           paid_at: string | null
           payment_method: string | null
+          payment_proof_path: string | null
           payment_reference: string | null
+          payment_rejection_reason: string | null
+          payment_reviewed_at: string | null
+          payment_reviewed_by: string | null
           payment_status: string
+          payment_submitted_at: string | null
           service_type: string
           start_date: string
           status: string
@@ -50,8 +55,13 @@ export type Database = {
           origin?: string | null
           paid_at?: string | null
           payment_method?: string | null
+          payment_proof_path?: string | null
           payment_reference?: string | null
+          payment_rejection_reason?: string | null
+          payment_reviewed_at?: string | null
+          payment_reviewed_by?: string | null
           payment_status?: string
+          payment_submitted_at?: string | null
           service_type?: string
           start_date?: string
           status?: string
@@ -71,8 +81,13 @@ export type Database = {
           origin?: string | null
           paid_at?: string | null
           payment_method?: string | null
+          payment_proof_path?: string | null
           payment_reference?: string | null
+          payment_rejection_reason?: string | null
+          payment_reviewed_at?: string | null
+          payment_reviewed_by?: string | null
           payment_status?: string
+          payment_submitted_at?: string | null
           service_type?: string
           start_date?: string
           status?: string
@@ -91,6 +106,13 @@ export type Database = {
             columns: ["identity_id"]
             isOneToOne: false
             referencedRelation: "identities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_payment_reviewed_by_fkey"
+            columns: ["payment_reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -295,7 +317,7 @@ export type Database = {
           full_name: string
           id: string
           phone: string | null
-          role: string
+          role: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -303,7 +325,7 @@ export type Database = {
           full_name?: string
           id: string
           phone?: string | null
-          role?: string
+          role?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -311,7 +333,28 @@ export type Database = {
           full_name?: string
           id?: string
           phone?: string | null
-          role?: string
+          role?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -378,10 +421,39 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_set_identity_verified: {
+        Args: { _identity_id: string; _verified: boolean }
+        Returns: undefined
+      }
+      choose_initial_role: {
+        Args: { _full_name: string; _role: string }
+        Returns: undefined
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       is_admin: { Args: never; Returns: boolean }
+      review_booking_payment: {
+        Args: { _booking_id: string; _decision: string; _reason?: string }
+        Returns: undefined
+      }
+      submit_booking_payment: {
+        Args: {
+          _booking_id: string
+          _method: string
+          _proof_path: string
+          _reference: string
+        }
+        Returns: undefined
+      }
+      verify_traveler_qr: { Args: { _token: string }; Returns: Json }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "traveler" | "business" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -508,6 +580,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["traveler", "business", "admin"],
+    },
   },
 } as const
