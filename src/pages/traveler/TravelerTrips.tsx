@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
-import { Plane, Calendar, MapPin, Building2, Filter, Search, Upload, Loader2, Wallet } from 'lucide-react';
+import { Plane, Calendar, MapPin, Building2, Filter, Search } from 'lucide-react';
+import { useServerFn } from '@tanstack/react-start';
+import { TripPayment } from '@/components/payments/TripPayment';
+import { getFawrySetup } from '@/lib/fawry.functions';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, EmptyState, StatusBadge, Spinner, PageHeader, Toast } from '@/components/ui';
-import type { Booking, PaymentMethod } from '@/types';
-import { formatAmount, PAYMENT_METHOD_LABELS } from '@/lib/payment';
+import type { Booking } from '@/types';
+import { formatAmount, PAYMENT_STATUS_CLASSES, PAYMENT_STATUS_LABELS } from '@/lib/payment';
 
 export function TravelerTrips() {
   const { profile } = useAuth();
@@ -14,6 +17,12 @@ export function TravelerTrips() {
   const [filter, setFilter] = useState<string>('all');
   const [search, setSearch] = useState('');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [fawryConfigured, setFawryConfigured] = useState<boolean | null>(null);
+  const fawrySetup = useServerFn(getFawrySetup);
+
+  useEffect(() => {
+    fawrySetup().then((r) => setFawryConfigured(r.configured)).catch(() => setFawryConfigured(false));
+  }, [fawrySetup]);
 
   useEffect(() => {
     if (!profile) return;
@@ -108,14 +117,17 @@ export function TravelerTrips() {
                   {booking.notes && <p className="text-sm text-navy-500 mt-2">{booking.notes}</p>}
                   <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
                     <span className="font-semibold text-navy-800">{formatAmount(booking.amount, booking.currency)}</span>
-                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${booking.payment_status === 'paid' ? 'bg-emerald-100 text-emerald-700' : booking.payment_status === 'pending_review' ? 'bg-amber-100 text-amber-700' : booking.payment_status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-navy-100 text-navy-600'}`}>
-                      {booking.payment_status === 'pending_review' ? 'Payment under review' : booking.payment_status.replace('_', ' ')}
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${PAYMENT_STATUS_CLASSES[booking.payment_status]}`}>
+                      {PAYMENT_STATUS_LABELS[booking.payment_status]}
                     </span>
                   </div>
-                  {booking.payment_status !== 'paid' && booking.status !== 'cancelled' && (
-                    <PaymentSubmission booking={booking} onSubmitted={(updated) => setBookings((prev) => prev.map((item) => item.id === updated.id ? updated : item))} onError={(message) => setToast({ message, type: 'error' })} onSuccess={() => setToast({ message: 'Payment proof submitted for review.', type: 'success' })} />
-                  )}
-                  {booking.payment_rejection_reason && <p className="text-sm text-red-600 mt-2">Payment rejected: {booking.payment_rejection_reason}</p>}
+                  <TripPayment
+                    booking={booking}
+                    defaultMobile={profile?.phone || ''}
+                    fawryConfigured={fawryConfigured}
+                    onUpdated={(updated) => setBookings((prev) => prev.map((item) => item.id === updated.id ? { ...item, ...updated } : item))}
+                    onToast={(message, type) => setToast({ message, type })}
+                  />
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="text-xs text-navy-400">Booking Ref</p>
@@ -130,49 +142,3 @@ export function TravelerTrips() {
   );
 }
 
-
-function PaymentSubmission({ booking, onSubmitted, onError, onSuccess }: {
-  booking: Booking;
-  onSubmitted: (booking: Booking) => void;
-  onError: (message: string) => void;
-  onSuccess: () => void;
-}) {
-  const [method, setMethod] = useState<PaymentMethod>(booking.payment_method || 'instapay');
-  const [reference, setReference] = useState(booking.payment_reference || '');
-  const [file, setFile] = useState<File | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [expanded, setExpanded] = useState(booking.payment_status === 'rejected');
-
-  const submit = async () => {
-    if (!reference.trim() || reference.trim().length < 4) return onError('Enter the transaction reference.');
-    if (!file) return onError('Attach a payment screenshot or PDF receipt.');
-    if (file.size > 5 * 1024 * 1024) return onError('The proof file must be 5 MB or smaller.');
-    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
-    if (!allowed.includes(file.type)) return onError('Use a JPG, PNG, WebP image, or PDF receipt.');
-    setSaving(true);
-    const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg';
-    const path = `${booking.traveler_user_id}/${booking.id}/${crypto.randomUUID()}.${ext}`;
-    const { error: uploadError } = await supabase.storage.from('payment-proofs').upload(path, file, { contentType: file.type, upsert: false });
-    if (uploadError) { setSaving(false); return onError(`Could not upload proof: ${uploadError.message}. Apply the payment workflow migration first.`); }
-    const { error: submitError } = await supabase.rpc('submit_booking_payment', {
-      _booking_id: booking.id, _method: method, _reference: reference.trim(), _proof_path: path,
-    });
-    setSaving(false);
-    if (submitError) { await supabase.storage.from('payment-proofs').remove([path]); return onError(submitError.message); }
-    onSubmitted({ ...booking, payment_method: method, payment_reference: reference.trim(), payment_proof_path: path, payment_status: 'pending_review', payment_submitted_at: new Date().toISOString(), payment_rejection_reason: null });
-    setExpanded(false);
-    onSuccess();
-  };
-
-  if (booking.payment_status === 'pending_review') return <p className="mt-2 text-xs text-amber-700">Your payment proof was submitted. Waiting for admin review.</p>;
-  return <div className="mt-3">
-    <button type="button" onClick={() => setExpanded((v) => !v)} className="inline-flex items-center gap-2 text-sm font-semibold text-turquoise-700"><Wallet size={16} />{booking.payment_status === 'rejected' ? 'Resubmit payment proof' : 'Submit payment proof'}</button>
-    {expanded && <div className="mt-3 rounded-xl border border-navy-200 bg-white p-4 space-y-3">
-      <p className="text-xs text-navy-500">Pay the business using the agreed method, then upload the receipt. Payment is not confirmed until an administrator reviews it.</p>
-      <div><label className="label">Payment method</label><select className="input" value={method} onChange={(e) => setMethod(e.target.value as PaymentMethod)}><option value="instapay">{PAYMENT_METHOD_LABELS.instapay}</option><option value="vodafone_cash">{PAYMENT_METHOD_LABELS.vodafone_cash}</option></select></div>
-      <div><label className="label">Transaction reference</label><input className="input" value={reference} onChange={(e) => setReference(e.target.value)} placeholder="Enter transfer reference" /></div>
-      <div><label className="label">Payment proof (max 5 MB)</label><input className="input" type="file" accept="image/jpeg,image/png,image/webp,application/pdf" onChange={(e) => setFile(e.target.files?.[0] || null)} /></div>
-      <button type="button" disabled={saving} onClick={submit} className="btn-primary">{saving ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}{saving ? 'Submitting...' : 'Submit for review'}</button>
-    </div>}
-  </div>;
-}
