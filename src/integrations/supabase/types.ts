@@ -29,8 +29,13 @@ export type Database = {
           origin: string | null
           paid_at: string | null
           payment_method: string | null
+          payment_proof_path: string | null
           payment_reference: string | null
+          payment_rejection_reason: string | null
+          payment_reviewed_at: string | null
+          payment_reviewed_by: string | null
           payment_status: string
+          payment_submitted_at: string | null
           service_type: string
           start_date: string
           status: string
@@ -50,8 +55,13 @@ export type Database = {
           origin?: string | null
           paid_at?: string | null
           payment_method?: string | null
+          payment_proof_path?: string | null
           payment_reference?: string | null
+          payment_rejection_reason?: string | null
+          payment_reviewed_at?: string | null
+          payment_reviewed_by?: string | null
           payment_status?: string
+          payment_submitted_at?: string | null
           service_type?: string
           start_date?: string
           status?: string
@@ -71,8 +81,13 @@ export type Database = {
           origin?: string | null
           paid_at?: string | null
           payment_method?: string | null
+          payment_proof_path?: string | null
           payment_reference?: string | null
+          payment_rejection_reason?: string | null
+          payment_reviewed_at?: string | null
+          payment_reviewed_by?: string | null
           payment_status?: string
+          payment_submitted_at?: string | null
           service_type?: string
           start_date?: string
           status?: string
@@ -91,6 +106,13 @@ export type Database = {
             columns: ["identity_id"]
             isOneToOne: false
             referencedRelation: "identities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_payment_reviewed_by_fkey"
+            columns: ["payment_reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -415,6 +437,19 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      review_booking_payment: {
+        Args: { _booking_id: string; _decision: string; _reason?: string }
+        Returns: undefined
+      }
+      submit_booking_payment: {
+        Args: {
+          _booking_id: string
+          _method: string
+          _proof_path: string
+          _reference: string
+        }
+        Returns: undefined
+      }
       verify_traveler_qr: { Args: { _token: string }; Returns: Json }
     }
     Enums: {
