@@ -29,6 +29,13 @@
       "when": 1793916040487,
       "tag": "0003_payment_review_workflow",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793917898977,
+      "tag": "0004_fawry_and_business_payment_details",
+      "breakpoints": true
     }
   ]
 }
