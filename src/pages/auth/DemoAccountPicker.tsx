@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from '@/lib/router-compat';
-import { Backpack, Briefcase, Plane, Hotel, ShieldCheck, ChevronDown, Loader2, Sparkles } from 'lucide-react';
+import { Backpack, Briefcase, Plane, Hotel, ShieldCheck, ChevronDown, Loader2, Sparkles, Users, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { DEMO_ACCOUNTS, DEMO_PASSWORD, type DemoAccount, type DemoRole } from '@/lib/demoAccounts';
 
@@ -16,6 +16,11 @@ const PERSONA_ICONS: Record<string, typeof Plane> = {
   skyline: Briefcase,
   serena: Hotel,
   dana: ShieldCheck,
+  omar: Users,
+  mariam: GraduationCap,
+  ali: Briefcase,
+  nilehorizon: Plane,
+  tigris: Hotel,
 };
 
 export function DemoAccountPicker() {
