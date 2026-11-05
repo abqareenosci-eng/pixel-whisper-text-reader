@@ -1,12 +1,13 @@
 import { useState, type FormEvent } from 'react';
-import { Smartphone, Wallet, Loader2, Plus } from 'lucide-react';
+import { Smartphone, Wallet, Loader2, Plus, Ticket } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Spinner } from '@/components/ui';
 import type { Booking, Business, Identity, PaymentMethod, Profile, ServiceType } from '@/types';
 
-const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; hint: string; icon: typeof Smartphone }[] = [
-  { value: 'instapay', label: 'InstaPay', hint: 'Bank transfer via InstaPay', icon: Smartphone },
-  { value: 'vodafone_cash', label: 'Vodafone Cash', hint: 'Mobile wallet payment', icon: Wallet },
+const PAYMENT_OPTIONS: { value: PaymentMethod; label: string; icon: typeof Smartphone }[] = [
+  { value: 'fawry', label: 'Fawry code', icon: Ticket },
+  { value: 'instapay', label: 'InstaPay', icon: Smartphone },
+  { value: 'vodafone_cash', label: 'Vodafone Cash', icon: Wallet },
 ];
 
 interface BookingPaymentFormProps {
@@ -24,7 +25,6 @@ export function BookingPaymentForm({ business, traveler, identity, onSaved, onCa
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [amount, setAmount] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,10 +36,6 @@ export function BookingPaymentForm({ business, traveler, identity, onSaved, onCa
     const value = Number(amount);
     if (!amount || !Number.isFinite(value) || value <= 0) {
       setError('Enter the travel value in EGP. It must be greater than zero.');
-      return;
-    }
-    if (!paymentMethod) {
-      setError('Choose how the traveler pays: InstaPay or Vodafone Cash.');
       return;
     }
     if (startDate && endDate && endDate < startDate) {
@@ -63,7 +59,7 @@ export function BookingPaymentForm({ business, traveler, identity, onSaved, onCa
         status: 'pending',
         amount: value,
         currency: 'EGP',
-        payment_method: paymentMethod,
+        payment_method: null,
         payment_reference: null,
         payment_status: 'unpaid',
         paid_at: null,
@@ -128,32 +124,17 @@ export function BookingPaymentForm({ business, traveler, identity, onSaved, onCa
         <div><label className="label">End Date</label><input type="date" className="input" value={endDate} onChange={(e) => setEndDate(e.target.value)} /></div>
       </div>
 
-      <div>
-        <label className="label">Payment Method</label>
-        <div className="grid sm:grid-cols-2 gap-3">
-          {PAYMENT_OPTIONS.map((option) => {
-            const selected = paymentMethod === option.value;
-            return (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setPaymentMethod(option.value)}
-                aria-pressed={selected}
-                className={`p-4 rounded-xl border-2 text-left transition-all duration-200 ${
-                  selected ? 'border-turquoise-500 bg-turquoise-50' : 'border-navy-200 bg-white hover:border-navy-300'
-                }`}
-              >
-                <option.icon size={20} className={selected ? 'text-turquoise-600' : 'text-navy-400'} />
-                <p className={`font-semibold mt-2 ${selected ? 'text-turquoise-700' : 'text-navy-800'}`}>{option.label}</p>
-                <p className="text-xs text-navy-500">{option.hint}</p>
-              </button>
-            );
-          })}
+      <div className="rounded-xl border border-border bg-navy-50 p-4 text-sm text-navy-600">
+        <p className="font-medium text-navy-800 mb-2">How the traveler pays</p>
+        <div className="grid sm:grid-cols-3 gap-2">
+          {PAYMENT_OPTIONS.map((option) => (
+            <div key={option.value} className="flex items-center gap-2 rounded-lg bg-card border border-border px-3 py-2">
+              <option.icon size={16} className="text-turquoise-700" />
+              <span className="text-navy-800 font-medium">{option.label}</span>
+            </div>
+          ))}
         </div>
-      </div>
-
-      <div className="rounded-xl border border-navy-200 bg-navy-50 p-4 text-sm text-navy-600">
-        The traveler can submit payment details and proof from My Trips. Payment remains unpaid until an administrator reviews the submission.
+        <p className="mt-2 text-xs">Fawry codes are confirmed automatically. InstaPay and Vodafone Cash receipts come to you to approve. Add your numbers in Settings.</p>
       </div>
 
       <div>
