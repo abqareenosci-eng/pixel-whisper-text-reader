@@ -156,8 +156,9 @@ export async function syncBookingWithFawry(
   const { error } = await supabaseAdmin.rpc('fawry_apply_status', {
     _booking_id: booking.id,
     _status: applied,
-    _fawry_reference: status.referenceNumber ?? undefined,
-    _fees: status.fees ?? undefined,
+    // SQL keeps the stored value when these are null (COALESCE).
+    _fawry_reference: (status.referenceNumber ?? null) as unknown as string,
+    _fees: (status.fees ?? null) as unknown as number,
   });
   if (error) console.error('Could not store Fawry status', error.message);
   return { ...status, orderStatus: applied };
