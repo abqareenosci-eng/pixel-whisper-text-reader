@@ -56,9 +56,9 @@ export function AdminDashboard() {
   }));
 
   const rolePie = [
-    { name: 'Travelers', value: travelers.length, color: '#319795' },
-    { name: 'Businesses', value: businessUsers.length, color: '#102a43' },
-    { name: 'Admins', value: admins.length, color: '#f59e0b' },
+    { name: 'Travelers', value: travelers.length, color: 'var(--chart-1)' },
+    { name: 'Businesses', value: businessUsers.length, color: 'var(--chart-2)' },
+    { name: 'Admins', value: admins.length, color: 'var(--amber-500)' },
   ].filter(d => d.value > 0);
 
   return (
@@ -94,25 +94,25 @@ export function AdminDashboard() {
             <AreaChart data={activityChart}>
               <defs>
                 <linearGradient id="verifGrad2" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#319795" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#319795" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="bookGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#102a43" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#102a43" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--chart-2)" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="var(--chart-2)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-              <XAxis dataKey="date" stroke="#9fb3c8" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis stroke="#9fb3c8" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #d9e2ec', fontSize: 13 }} />
-              <Area type="monotone" dataKey="verifications" stroke="#319795" strokeWidth={2} fill="url(#verifGrad2)" />
-              <Area type="monotone" dataKey="bookings" stroke="#102a43" strokeWidth={2} fill="url(#bookGrad)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="date" stroke="var(--navy-400)" fontSize={11} tickLine={false} axisLine={false} />
+              <YAxis stroke="var(--navy-400)" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid var(--border)', background: 'var(--popover)', color: 'var(--popover-foreground)', fontSize: 13 }} />
+              <Area type="monotone" dataKey="verifications" stroke="var(--chart-1)" strokeWidth={2} fill="url(#verifGrad2)" />
+              <Area type="monotone" dataKey="bookings" stroke="var(--chart-2)" strokeWidth={2} fill="url(#bookGrad)" />
             </AreaChart>
           </ResponsiveContainer>
           <div className="flex gap-4 justify-center mt-2">
             <div className="flex items-center gap-1.5 text-xs"><div className="w-3 h-3 rounded-full bg-turquoise-600" /><span className="text-navy-600">Verifications</span></div>
-            <div className="flex items-center gap-1.5 text-xs"><div className="w-3 h-3 rounded-full bg-navy-900" /><span className="text-navy-600">Bookings</span></div>
+            <div className="flex items-center gap-1.5 text-xs"><div className="w-3 h-3 rounded-full bg-accent-500" /><span className="text-navy-600">Bookings</span></div>
           </div>
         </Card>
 
@@ -125,7 +125,7 @@ export function AdminDashboard() {
                 <Pie data={rolePie} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={55} outerRadius={85} paddingAngle={4}>
                   {rolePie.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #d9e2ec', fontSize: 13 }} />
+                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid var(--border)', background: 'var(--popover)', color: 'var(--popover-foreground)', fontSize: 13 }} />
               </PieChart>
             </ResponsiveContainer>
           ) : (

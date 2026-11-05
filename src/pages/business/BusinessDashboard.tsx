@@ -67,9 +67,9 @@ export function BusinessDashboard() {
   }));
 
   const resultPie = [
-    { name: 'Verified', value: verifications.filter(v => v.result === 'verified').length, color: '#319795' },
-    { name: 'Mismatch', value: verifications.filter(v => v.result === 'mismatch').length, color: '#ef4444' },
-    { name: 'Not Found', value: verifications.filter(v => v.result === 'not_found').length, color: '#f59e0b' },
+    { name: 'Verified', value: verifications.filter(v => v.result === 'verified').length, color: 'var(--chart-1)' },
+    { name: 'Mismatch', value: verifications.filter(v => v.result === 'mismatch').length, color: 'var(--chart-4)' },
+    { name: 'Not Found', value: verifications.filter(v => v.result === 'not_found').length, color: 'var(--amber-500)' },
   ].filter(d => d.value > 0);
 
   const bookingTypeData = ['flight', 'hotel', 'car_rental', 'tour', 'cruise', 'other'].map(type => ({
@@ -100,15 +100,15 @@ export function BusinessDashboard() {
             <AreaChart data={verificationChart}>
               <defs>
                 <linearGradient id="verifGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#319795" stopOpacity={0.3} />
-                  <stop offset="100%" stopColor="#319795" stopOpacity={0} />
+                  <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-              <XAxis dataKey="date" stroke="#9fb3c8" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#9fb3c8" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #d9e2ec', fontSize: 13 }} />
-              <Area type="monotone" dataKey="verifications" stroke="#319795" strokeWidth={2} fill="url(#verifGrad)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="date" stroke="var(--navy-400)" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="var(--navy-400)" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid var(--border)', background: 'var(--popover)', color: 'var(--popover-foreground)', fontSize: 13 }} />
+              <Area type="monotone" dataKey="verifications" stroke="var(--chart-1)" strokeWidth={2} fill="url(#verifGrad)" />
             </AreaChart>
           </ResponsiveContainer>
         </Card>
@@ -122,7 +122,7 @@ export function BusinessDashboard() {
                 <Pie data={resultPie} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={4}>
                   {resultPie.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #d9e2ec', fontSize: 13 }} />
+                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid var(--border)', background: 'var(--popover)', color: 'var(--popover-foreground)', fontSize: 13 }} />
               </PieChart>
             </ResponsiveContainer>
           ) : (
@@ -203,11 +203,11 @@ export function BusinessDashboard() {
           <h2 className="text-lg font-bold text-navy-900 mb-4">Bookings by Service Type</h2>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={bookingTypeData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-              <XAxis dataKey="type" stroke="#9fb3c8" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#9fb3c8" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
-              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #d9e2ec', fontSize: 13 }} />
-              <Bar dataKey="count" fill="#319795" radius={[8, 8, 0, 0]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+              <XAxis dataKey="type" stroke="var(--navy-400)" fontSize={12} tickLine={false} axisLine={false} />
+              <YAxis stroke="var(--navy-400)" fontSize={12} tickLine={false} axisLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid var(--border)', background: 'var(--popover)', color: 'var(--popover-foreground)', fontSize: 13 }} />
+              <Bar dataKey="count" fill="var(--chart-1)" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </Card>

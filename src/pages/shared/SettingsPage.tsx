@@ -45,7 +45,7 @@ export function SettingsPage({ role }: { role: 'traveler' | 'business' | 'admin'
             <h2 className="text-lg font-bold text-navy-900 mb-6">Profile Information</h2>
 
             <div className="flex items-center gap-4 mb-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-navy-700 to-navy-900 flex items-center justify-center text-white text-xl font-bold">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-turquoise-600 to-turquoise-800 flex items-center justify-center text-white text-xl font-bold">
                 {fullName.charAt(0).toUpperCase() || '?'}
               </div>
               <div>

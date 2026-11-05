@@ -56,8 +56,8 @@ export function TravelerDashboard() {
         <div className="lg:col-span-1">
           {identity ? (
             <Card className="overflow-hidden">
-              <div className="bg-gradient-to-br from-navy-800 to-navy-950 -m-6 mb-0 p-6 text-white relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-40 h-40 bg-turquoise-500/20 rounded-full blur-3xl" />
+              <div className="passport-cover -m-6 mb-0 p-6 relative overflow-hidden">
+                <div className="absolute inset-0 paper-grid opacity-[0.07]" /><div className="absolute -top-14 -right-14 w-40 h-40 rounded-full border border-gold/30" />
                 <div className="relative flex items-center justify-between mb-4">
                   <div>
                     <p className="text-xs text-turquoise-400 font-medium tracking-wider uppercase">Digital Identity</p>

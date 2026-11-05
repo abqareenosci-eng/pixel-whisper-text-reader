@@ -14,7 +14,7 @@ export function QRCodeCard({ token, size = 200 }: { token: string; size?: number
       width: size * 2,
       margin: 2,
       errorCorrectionLevel: 'M',
-      color: { dark: '#102a43', light: '#ffffff' },
+      color: { dark: '#11302e', light: '#ffffff' },
     })
       .then((url) => { if (!cancelled) setSrc(url); })
       .catch(() => { if (!cancelled) setFailed(true); });

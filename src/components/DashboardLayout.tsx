@@ -69,17 +69,21 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-navy-50 flex">
       {/* Sidebar - Desktop */}
-      <aside className={`fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-gradient-to-b from-[#102a43] to-[#0a1c2e] text-white border-r border-white/5 flex flex-col transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-        <div className="p-6 border-b border-white/10">
-          <Logo light size="md" />
+      <aside className={`fixed lg:sticky top-0 left-0 z-40 h-screen w-72 bg-sidebar text-sidebar-foreground border-r border-sidebar-border flex flex-col transition-transform duration-300 overflow-hidden ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+        <div className="pointer-events-none absolute inset-0 paper-grid opacity-60 [mask-image:linear-gradient(to_bottom,black,transparent_70%)]" />
+
+        <div className="relative px-6 pt-6 pb-5">
+          <Logo size="md" />
         </div>
 
-        <div className="px-6 py-4 border-b border-white/10">
-          <p className="text-xs font-medium text-turquoise-400 tracking-wider uppercase">{roleLabel}</p>
+        <div className="relative mx-6 mb-2 flex items-center gap-2">
+          <span className="eyebrow text-turquoise-700">{roleLabel}</span>
+          <span className="flex-1 perforation" />
+          <Plane size={12} className="text-accent-500" />
         </div>
 
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto scrollbar-thin">
-          {navItems.map((item) => {
+        <nav className="relative flex-1 px-4 py-3 space-y-1 overflow-y-auto scrollbar-thin">
+          {navItems.map((item, index) => {
             const active = isActive(item.path);
             return (
               <button
@@ -88,23 +92,27 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                   navigate(item.path);
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                className={`group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 ${
                   active
-                    ? 'bg-gradient-to-r from-turquoise-600 to-turquoise-500 text-white shadow-lg shadow-turquoise-900/30'
-                    : 'text-white/60 hover:bg-white/5 hover:text-white'
+                    ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold'
+                    : 'text-navy-500 font-medium hover:bg-navy-100 hover:text-navy-900'
                 }`}
               >
-                <item.icon size={18} />
-                {item.label}
+                {active && <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-sidebar-primary" />}
+                <span className={`flex h-8 w-8 items-center justify-center rounded-lg border transition-colors ${active ? 'border-transparent bg-sidebar-primary text-sidebar-primary-foreground' : 'border-sidebar-border bg-card text-navy-500 group-hover:text-navy-800'}`}>
+                  <item.icon size={16} />
+                </span>
+                <span className="flex-1 text-left">{item.label}</span>
+                <span className="font-mono text-[10px] text-navy-400">{String(index + 1).padStart(2, '0')}</span>
               </button>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-white/10">
+        <div className="relative p-4 border-t border-sidebar-border">
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/60 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-navy-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
           >
             <LogOut size={18} />
             Sign Out
@@ -114,24 +122,24 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
 
       {/* Overlay for mobile */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-30 bg-navy-900/50 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div className="fixed inset-0 z-30 bg-overlay backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
       {/* Main content */}
       <div className="flex-1 min-w-0 flex flex-col">
         {/* Top bar */}
-        <header className="sticky top-0 z-20 bg-white/80 backdrop-blur-xl border-b border-navy-100 shadow-[0_1px_0_rgba(16,42,67,0.03)]">
+        <header className="sticky top-0 z-20 bg-background/80 backdrop-blur-xl border-b border-border">
           <div className="flex items-center justify-between px-4 sm:px-6 h-16">
             <button
               onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="lg:hidden p-2 rounded-lg hover:bg-navy-50 text-navy-600"
+              className="lg:hidden p-2 rounded-lg hover:bg-navy-100 text-navy-600"
             >
               {sidebarOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
 
             <div className="hidden lg:block">
-              <p className="text-sm text-navy-400">Welcome back,</p>
-              <p className="text-sm font-semibold text-navy-900">{profile.full_name}</p>
+              <p className="eyebrow">Welcome back</p>
+              <p className="font-display text-lg font-semibold text-navy-900 leading-tight">{profile.full_name}</p>
             </div>
 
             <div className="flex items-center gap-3">

@@ -212,7 +212,7 @@ export function BusinessScan() {
             {/* Camera scanner */}
             <Card>
               <h2 className="text-lg font-bold text-navy-900 mb-4">Camera Scanner</h2>
-              <div className="relative bg-navy-900 rounded-2xl overflow-hidden aspect-video flex items-center justify-center">
+              <div className="relative bg-night-sky rounded-2xl overflow-hidden aspect-video flex items-center justify-center">
                 <video
                   ref={videoRef}
                   className={`w-full h-full object-cover ${cameraActive ? '' : 'hidden'}`}
@@ -325,7 +325,7 @@ export function BusinessScan() {
             {/* Traveler info */}
             <Card>
               <div className="flex items-center gap-4 mb-6 pb-6 border-b border-navy-100">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-navy-700 to-navy-900 flex items-center justify-center text-white text-xl font-bold">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-turquoise-600 to-turquoise-800 flex items-center justify-center text-white text-xl font-bold">
                   {scanResult.identity.full_name.charAt(0).toUpperCase()}
                 </div>
                 <div>
