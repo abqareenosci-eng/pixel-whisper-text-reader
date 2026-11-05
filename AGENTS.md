@@ -38,6 +38,7 @@ use the editor.
 - Passport OCR runs on the server through the Lovable AI Gateway (`extractPassport` in `src/lib/ocr.functions.ts`, auth-required); the browser only compresses the photo (`src/lib/ocr.ts`). MRZ check digits (`src/lib/mrz.ts`) cross-check the AI result. Why: browser Tesseract from CDNs was unreliable and no Google key is wanted.
 - QR decoding uses the native BarcodeDetector when present and falls back to jsQR (`src/lib/qr.ts`). Why: iOS Safari and Firefox lack BarcodeDetector.
 
-- Payment proof is submitted by the traveler to the private `payment-proofs` Storage bucket; only the admin payment-review RPC can approve or reject a submitted payment.
+- Payment proof is submitted by the traveler to the private `payment-proofs` Storage bucket; only the `review_booking_payment` RPC (booking's business or admin) can approve or reject it. Why: payment fields are guarded by a trigger so no client can mark itself paid.
+- Fawry "Pay at Fawry" codes are created and checked only on the server (`src/lib/fawry.functions.ts` + `fawry.server.ts`), written through service-role-only RPCs (`fawry_attach_voucher`, `fawry_apply_status`); the public webhook only looks up the booking and re-reads the status from Fawry's API. Why: callback bodies are never trusted.
 
 - Demo traveler/business accounts are data rows, not migrations; no demo admin exists. Why: a public password must never unlock admin.
