@@ -140,65 +140,107 @@ export function AuthPage({ mode }: { mode: 'login' | 'register' }) {
   return (
     <div className="min-h-screen flex">
       {/* Left panel - branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-navy-900 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-0 right-0 w-96 h-96 bg-turquoise-600/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-turquoise-500/10 rounded-full blur-3xl" />
-          <div
-            className="absolute inset-0 opacity-5"
-            style={{
-              backgroundImage: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="1"%3E%3Cpath d="M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-            }}
-          />
-        </div>
+      <div className="hidden lg:flex lg:w-[54%] bg-background relative overflow-hidden border-r border-border">
+        <div className="absolute inset-0 paper-grid grid-fade" />
+        {/* Dashed flight route across the map */}
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 800 900" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M-20 760 C 180 640, 260 820, 420 600 S 700 380, 840 140" fill="none" stroke="var(--teal-400)" strokeOpacity="0.45" strokeWidth="1.5" strokeDasharray="6 8" />
+          <circle cx="420" cy="600" r="5" fill="var(--amber-400)" />
+          <circle cx="420" cy="600" r="11" fill="none" stroke="var(--amber-400)" strokeOpacity="0.5" />
+        </svg>
 
-        <div className="relative z-10 flex flex-col justify-between p-12 text-white">
-          <Logo light size="lg" />
+        <div className="relative z-10 flex w-full flex-col justify-between p-12 xl:p-16">
+          <Logo size="lg" />
 
-          <div className="space-y-8">
-            <div>
-              <h1 className="text-4xl font-display font-bold leading-tight text-balance">
-                Digital identity for the modern traveler
+          <div className="grid gap-10 xl:grid-cols-[1fr_auto] xl:items-center">
+            <div className="max-w-lg">
+              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-navy-600">
+                <span className="h-1.5 w-1.5 rounded-full bg-accent-500" />
+                For travelers & travel businesses
+              </span>
+              <h1 className="mt-6 text-5xl xl:text-6xl font-semibold leading-[1.05] text-navy-900 text-balance">
+                Travel lighter.<br />
+                Verify <span className="marker">faster.</span><br />
+                Arrive ready.
               </h1>
-              <p className="text-navy-300 mt-4 text-lg max-w-md">
-                Secure passport scanning, QR verification, and seamless booking management — all in one premium platform.
+              <p className="mt-6 text-lg leading-relaxed text-navy-500">
+                Your passport becomes a secure digital travel card — scanned in seconds, checked with one QR at every hotel, airline and tour desk.
               </p>
+
+              <div className="mt-8 grid grid-cols-3 gap-3 max-w-md">
+                {[
+                  { icon: ShieldCheck, title: 'Private', desc: 'Encrypted ID' },
+                  { icon: Plane, title: 'Global', desc: 'One card' },
+                  { icon: Building2, title: 'Trusted', desc: 'By businesses' },
+                ].map((feature) => (
+                  <div key={feature.title} className="rounded-xl border border-border bg-card/80 p-3">
+                    <feature.icon size={16} className="text-turquoise-600" />
+                    <p className="mt-2 text-sm font-semibold text-navy-900">{feature.title}</p>
+                    <p className="text-xs text-navy-400">{feature.desc}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="space-y-4">
-              {[
-                { icon: ShieldCheck, title: 'Bank-grade security', desc: 'Your passport data is encrypted and protected' },
-                { icon: Plane, title: 'Global travel identity', desc: 'One digital card works everywhere' },
-                { icon: Building2, title: 'For businesses & travelers', desc: 'Built for the entire travel ecosystem' },
-              ].map((feature) => (
-                <div key={feature.title} className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center flex-shrink-0">
-                    <feature.icon size={20} className="text-turquoise-400" />
+            {/* Boarding-pass preview */}
+            <div className="relative hidden xl:block w-72 animate-float">
+              <div className="ticket overflow-hidden" style={{ ['--notch-y' as string]: '68%' }}>
+                <div className="passport-cover px-5 py-4 flex items-center justify-between">
+                  <span className="font-mono text-[10px] tracking-[0.2em] uppercase opacity-80">Boarding pass</span>
+                  <Plane size={16} className="text-gold -rotate-45" />
+                </div>
+                <div className="px-5 pt-4 pb-5">
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <p className="eyebrow">From</p>
+                      <p className="font-display text-3xl font-semibold text-navy-900">CAI</p>
+                    </div>
+                    <div className="mb-2 flex flex-1 items-center gap-1 px-3">
+                      <span className="flex-1 perforation" />
+                      <Plane size={14} className="text-accent-500" />
+                      <span className="flex-1 perforation" />
+                    </div>
+                    <div className="text-right">
+                      <p className="eyebrow">To</p>
+                      <p className="font-display text-3xl font-semibold text-navy-900">LIS</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-semibold">{feature.title}</p>
-                    <p className="text-sm text-navy-400">{feature.desc}</p>
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    <div><p className="eyebrow">Gate</p><p className="font-mono text-sm text-navy-800">B12</p></div>
+                    <div><p className="eyebrow">Seat</p><p className="font-mono text-sm text-navy-800">14A</p></div>
+                    <div><p className="eyebrow">Board</p><p className="font-mono text-sm text-navy-800">09:40</p></div>
+                  </div>
+                  <div className="my-4 perforation" />
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="eyebrow">Passenger</p>
+                      <p className="text-sm font-semibold text-navy-900">Omar Hassan</p>
+                    </div>
+                    <span className="stamp"><CheckCircle2 size={12} />Verified</span>
                   </div>
                 </div>
-              ))}
+              </div>
+              <div className="absolute -left-10 -bottom-8 rounded-xl border border-border bg-card px-4 py-3 shadow-lift">
+                <p className="text-xs text-navy-400">Identity check</p>
+                <p className="font-display text-lg font-semibold text-navy-900">in 2 seconds</p>
+              </div>
             </div>
           </div>
 
-          <p className="text-sm text-navy-400">
-            Trusted by travel businesses worldwide
-          </p>
+          <p className="eyebrow">Passport scan · QR check-in · Bookings · Payments</p>
         </div>
       </div>
 
       {/* Right panel - form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-navy-50">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-navy-100/50 relative">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-8">
             <Logo size="md" />
           </div>
 
           <div className="mb-6">
-            <h2 className="text-3xl font-bold text-navy-900">
+            <p className="eyebrow mb-2">{mode === 'login' ? 'Sign in' : 'New account'}</p>
+            <h2 className="text-4xl font-semibold text-navy-900">
               {mode === 'login' ? 'Welcome back' : 'Create your account'}
             </h2>
             <p className="text-navy-500 mt-2">
