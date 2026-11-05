@@ -19,6 +19,9 @@ export interface Business {
   address: string | null;
   verified: boolean;
   created_at: string;
+  instapay_address?: string | null;
+  vodafone_cash_number?: string | null;
+  payment_instructions?: string | null;
 }
 
 export type BusinessType = 'hotel' | 'airline' | 'car_rental' | 'tour_operator' | 'cruise' | 'other';
@@ -68,13 +71,18 @@ export interface Booking {
   payment_reviewed_at?: string | null;
   payment_reviewed_by?: string | null;
   payment_rejection_reason?: string | null;
+  fawry_merchant_ref?: string | null;
+  fawry_reference_number?: string | null;
+  fawry_expires_at?: string | null;
+  fawry_fees?: number | null;
+  fawry_status?: string | null;
   created_at: string;
   business?: Business;
   traveler?: Profile;
   identity?: Identity;
 }
 
-export type PaymentMethod = 'instapay' | 'vodafone_cash';
+export type PaymentMethod = 'instapay' | 'vodafone_cash' | 'fawry';
 export type PaymentStatus = 'unpaid' | 'pending_review' | 'paid' | 'rejected' | 'refunded';
 
 export type ServiceType = 'flight' | 'hotel' | 'car_rental' | 'tour' | 'cruise' | 'other';

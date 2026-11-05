@@ -5,7 +5,8 @@ import { supabase } from '@/lib/supabase';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, EmptyState, StatusBadge, Spinner, PageHeader, Modal, Toast } from '@/components/ui';
 import { BookingPaymentForm } from '@/components/BookingPaymentForm';
-import { PAYMENT_METHOD_LABELS, formatAmount, isBookingPaid } from '@/lib/payment';
+import { PAYMENT_METHOD_LABELS, PAYMENT_STATUS_CLASSES, PAYMENT_STATUS_LABELS, formatAmount, isBookingPaid } from '@/lib/payment';
+import { BusinessPaymentActions } from '@/components/payments/BusinessPaymentActions';
 import type { Booking, Business, Profile, Identity } from '@/types';
 
 export function BusinessBookings() {
@@ -158,13 +159,16 @@ export function BusinessBookings() {
                   </div>
                   <div className="flex items-center gap-3 mt-3 flex-wrap">
                     <span className="flex items-center gap-1.5 text-sm font-semibold text-navy-900"><Wallet size={14} className="text-navy-400" />{formatAmount(b.amount, b.currency)}</span>
-                    {isBookingPaid(b) ? (
-                      <span className="badge-success">Paid · {b.payment_method ? PAYMENT_METHOD_LABELS[b.payment_method] : '—'}</span>
-                    ) : (
-                      <span className="badge-warning">Unpaid</span>
-                    )}
-                    {b.payment_reference && <span className="font-mono text-xs text-navy-500">Ref {b.payment_reference}</span>}
+                    <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${PAYMENT_STATUS_CLASSES[b.payment_status]}`}>
+                      {PAYMENT_STATUS_LABELS[b.payment_status]}{isBookingPaid(b) && b.payment_method ? ` · ${PAYMENT_METHOD_LABELS[b.payment_method]}` : ''}
+                    </span>
+                    {isBookingPaid(b) && b.payment_reference && <span className="font-mono text-xs text-navy-500">Ref {b.payment_reference}</span>}
                   </div>
+                  <BusinessPaymentActions
+                    booking={b}
+                    onUpdated={(patch) => setBookings((prev) => prev.map((item) => item.id === b.id ? { ...item, ...patch } : item))}
+                    onToast={(message, type) => setToast({ message, type })}
+                  />
                   {b.notes && <p className="text-sm text-navy-500 mt-2">{b.notes}</p>}
                 </div>
                 <div className="flex flex-col items-end gap-2 flex-shrink-0">

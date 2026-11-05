@@ -31,6 +31,7 @@ import { Route as TravelerScanRouteImport } from './routes/traveler/scan'
 import { Route as TravelerSettingsRouteImport } from './routes/traveler/settings'
 import { Route as TravelerTripsRouteImport } from './routes/traveler/trips'
 import { Route as TravelerVerificationsRouteImport } from './routes/traveler/verifications'
+import { Route as ApiPublicFawryWebhookRouteImport } from './routes/api/public/fawry/webhook'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -142,6 +143,11 @@ const TravelerVerificationsRoute = TravelerVerificationsRouteImport.update({
   path: '/traveler/verifications',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicFawryWebhookRoute = ApiPublicFawryWebhookRouteImport.update({
+  id: '/api/public/fawry/webhook',
+  path: '/api/public/fawry/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -166,6 +172,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/business/': typeof BusinessIndexRoute
   '/traveler/': typeof TravelerIndexRoute
+  '/api/public/fawry/webhook': typeof ApiPublicFawryWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -190,6 +197,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/business': typeof BusinessIndexRoute
   '/traveler': typeof TravelerIndexRoute
+  '/api/public/fawry/webhook': typeof ApiPublicFawryWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -215,6 +223,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/business/': typeof BusinessIndexRoute
   '/traveler/': typeof TravelerIndexRoute
+  '/api/public/fawry/webhook': typeof ApiPublicFawryWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -241,6 +250,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/business/'
     | '/traveler/'
+    | '/api/public/fawry/webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -265,6 +275,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/business'
     | '/traveler'
+    | '/api/public/fawry/webhook'
   id:
     | '__root__'
     | '/'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/business/'
     | '/traveler/'
+    | '/api/public/fawry/webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -314,6 +326,7 @@ export interface RootRouteChildren {
   AdminIndexRoute: typeof AdminIndexRoute
   BusinessIndexRoute: typeof BusinessIndexRoute
   TravelerIndexRoute: typeof TravelerIndexRoute
+  ApiPublicFawryWebhookRoute: typeof ApiPublicFawryWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -472,6 +485,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TravelerVerificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/fawry/webhook': {
+      id: '/api/public/fawry/webhook'
+      path: '/api/public/fawry/webhook'
+      fullPath: '/api/public/fawry/webhook'
+      preLoaderRoute: typeof ApiPublicFawryWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -498,6 +518,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminIndexRoute: AdminIndexRoute,
   BusinessIndexRoute: BusinessIndexRoute,
   TravelerIndexRoute: TravelerIndexRoute,
+  ApiPublicFawryWebhookRoute: ApiPublicFawryWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

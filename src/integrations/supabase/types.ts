@@ -23,6 +23,11 @@ export type Database = {
           currency: string
           destination: string | null
           end_date: string | null
+          fawry_expires_at: string | null
+          fawry_fees: number | null
+          fawry_merchant_ref: string | null
+          fawry_reference_number: string | null
+          fawry_status: string | null
           id: string
           identity_id: string | null
           notes: string | null
@@ -49,6 +54,11 @@ export type Database = {
           currency?: string
           destination?: string | null
           end_date?: string | null
+          fawry_expires_at?: string | null
+          fawry_fees?: number | null
+          fawry_merchant_ref?: string | null
+          fawry_reference_number?: string | null
+          fawry_status?: string | null
           id?: string
           identity_id?: string | null
           notes?: string | null
@@ -75,6 +85,11 @@ export type Database = {
           currency?: string
           destination?: string | null
           end_date?: string | null
+          fawry_expires_at?: string | null
+          fawry_fees?: number | null
+          fawry_merchant_ref?: string | null
+          fawry_reference_number?: string | null
+          fawry_status?: string | null
           id?: string
           identity_id?: string | null
           notes?: string | null
@@ -133,8 +148,11 @@ export type Database = {
           country: string
           created_at: string
           id: string
+          instapay_address: string | null
+          payment_instructions: string | null
           user_id: string
           verified: boolean
+          vodafone_cash_number: string | null
         }
         Insert: {
           address?: string | null
@@ -144,8 +162,11 @@ export type Database = {
           country?: string
           created_at?: string
           id?: string
+          instapay_address?: string | null
+          payment_instructions?: string | null
           user_id: string
           verified?: boolean
+          vodafone_cash_number?: string | null
         }
         Update: {
           address?: string | null
@@ -155,8 +176,11 @@ export type Database = {
           country?: string
           created_at?: string
           id?: string
+          instapay_address?: string | null
+          payment_instructions?: string | null
           user_id?: string
           verified?: boolean
+          vodafone_cash_number?: string | null
         }
         Relationships: [
           {
@@ -429,6 +453,25 @@ export type Database = {
         Args: { _full_name: string; _role: string }
         Returns: undefined
       }
+      fawry_apply_status: {
+        Args: {
+          _booking_id: string
+          _fawry_reference: string
+          _fees: number
+          _status: string
+        }
+        Returns: undefined
+      }
+      fawry_attach_voucher: {
+        Args: {
+          _booking_id: string
+          _expires_at: string
+          _fees: number
+          _merchant_ref: string
+          _reference: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -437,6 +480,7 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      owns_booking_business: { Args: { _booking_id: string }; Returns: boolean }
       review_booking_payment: {
         Args: { _booking_id: string; _decision: string; _reason?: string }
         Returns: undefined
@@ -449,6 +493,10 @@ export type Database = {
           _reference: string
         }
         Returns: undefined
+      }
+      traveler_linked_to_business: {
+        Args: { _business_id: string }
+        Returns: boolean
       }
       verify_traveler_qr: { Args: { _token: string }; Returns: Json }
     }

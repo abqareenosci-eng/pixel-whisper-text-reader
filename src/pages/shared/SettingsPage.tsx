@@ -4,6 +4,7 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, Spinner, Toast } from '@/components/ui';
+import { BusinessPayoutSettings } from '@/components/payments/BusinessPayoutSettings';
 
 export function SettingsPage({ role }: { role: 'traveler' | 'business' | 'admin' }) {
   const { profile, refreshProfile } = useAuth();
@@ -92,6 +93,10 @@ export function SettingsPage({ role }: { role: 'traveler' | 'business' | 'admin'
               </button>
             </div>
           </Card>
+
+          {role === 'business' && profile && (
+            <BusinessPayoutSettings userId={profile.id} onToast={(message, type) => setToast({ message, type })} />
+          )}
 
           {/* Privacy */}
           <Card>
