@@ -1,0 +1,12 @@
+[
+  {"capability": "code", "source": "TanStack Start app (src/pages + thin src/routes)", "outcome": "migrate", "status": "in_progress", "next_action": "Copy source into project"},
+  {"capability": "schema", "source": "drizzle/migrations 0000-0003", "outcome": "migrate", "status": "pending", "next_action": "Apply as Lovable Cloud migrations"},
+  {"capability": "records", "source": "Old Lovable Cloud database (no export attached)", "outcome": "migrate", "status": "pending", "next_action": "Request CSV export after preview"},
+  {"capability": "auth_identities", "source": "Email/password + Google via Lovable auth", "outcome": "migrate", "status": "pending", "next_action": "Request user export after preview"},
+  {"capability": "authorization", "source": "user_roles table + RLS + security definer RPCs", "outcome": "migrate", "status": "pending", "next_action": "Applied with schema"},
+  {"capability": "storage", "source": "payment-proofs private bucket", "outcome": "migrate", "status": "pending", "next_action": "Created by migration 0003"},
+  {"capability": "ocr", "source": "Tesseract.js from CDN (broken)", "outcome": "replace with Lovable AI vision server function", "status": "pending", "next_action": "Implement and verify"},
+  {"capability": "demo_accounts", "source": "seed migration with demo users", "outcome": "migrate", "status": "pending", "next_action": "Check demo seed"},
+  {"capability": "cutover", "source": "traveler-trust-compass.lovable.app", "outcome": "publish new project", "status": "pending", "next_action": "User publishes when ready"},
+  {"capability": "verification", "source": "-", "outcome": "-", "status": "pending", "next_action": "Build, sign in, scan passport"}
+]
