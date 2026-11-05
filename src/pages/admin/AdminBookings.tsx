@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, Spinner, StatusBadge, PageHeader, EmptyState } from '@/components/ui';
 import type { Booking } from '@/types';
+import { PAYMENT_METHOD_LABELS } from '@/lib/payment';
 
 export function AdminBookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -105,7 +106,7 @@ export function AdminBookings() {
               </div>
               {b.payment_status === 'pending_review' && (
                 <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-navy-100 pt-3">
-                  <span className="text-xs text-navy-500 mr-auto">{b.payment_method || '—'} · Ref: {b.payment_reference || '—'}</span>
+                  <span className="text-xs text-navy-500 mr-auto">{b.payment_method ? PAYMENT_METHOD_LABELS[b.payment_method] : '—'} · Ref: {b.payment_reference || '—'}</span>
                   {b.payment_proof_path && <button type="button" onClick={() => openProof(b)} className="btn-secondary text-xs"><ExternalLink size={14} />View proof</button>}
                   <button type="button" disabled={workingId === b.id} onClick={() => reviewPayment(b, 'rejected')} className="inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-2 text-xs font-semibold text-red-700 disabled:opacity-50"><XCircle size={14} />Reject</button>
                   <button type="button" disabled={workingId === b.id} onClick={() => reviewPayment(b, 'paid')} className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white disabled:opacity-50"><CheckCircle2 size={14} />Approve payment</button>
