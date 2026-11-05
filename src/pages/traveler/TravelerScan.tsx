@@ -6,14 +6,14 @@ import { supabase } from '@/lib/supabase';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, Spinner, Toast } from '@/components/ui';
 import type { OCRResult } from '@/types';
-import { scanPassport } from '@/lib/ocr.functions';
+import { scanPassport } from '@/lib/ocr';
 import { compressImage } from '@/lib/image';
 
 export function TravelerScan() {
   const { profile } = useAuth();
   const navigate = useNavigate();
   const [ocrProgress, setOcrProgress] = useState(0);
-  const [ocrStatus, setOcrStatus] = useState('Preparing OCR engine');
+  const [ocrStatus, setOcrStatus] = useState('Preparing photo');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
@@ -208,7 +208,7 @@ export function TravelerScan() {
               <h3 className="text-lg font-bold text-navy-900">Scanning your passport...</h3>
               <p className="text-navy-500 mt-2">{ocrStatus} · {ocrProgress}%</p>
               <div className="w-full max-w-xs h-2 rounded-full bg-navy-100 mt-4 overflow-hidden"><div className="h-full bg-turquoise-500 transition-all" style={{ width: `${ocrProgress}%` }} /></div>
-              <p className="text-xs text-navy-400 mt-2">Runs locally in your browser. Your passport image is not uploaded to an OCR service.</p>
+              <p className="text-xs text-navy-400 mt-2">Your photo is read securely by Lovable AI and is not stored.</p>
               {imagePreview && (
                 <img src={imagePreview} alt="Passport" className="mt-6 max-h-48 rounded-xl border border-navy-200" />
               )}
