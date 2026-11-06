@@ -7,6 +7,7 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, EmptyState, StatusBadge, Spinner, Modal, Toast } from '@/components/ui';
 import { QRCodeCard } from '@/components/QRCodeCard';
 import type { Identity } from '@/types';
+import { documentNumberLabel, getDocumentType } from '@/lib/id-documents';
 
 export function TravelerIdentity() {
   const { profile } = useAuth();
@@ -69,11 +70,11 @@ export function TravelerIdentity() {
           <EmptyState
             icon={IdCard}
             title="No digital identity yet"
-            description="Scan your passport to create your digital travel identity card with a unique QR code for verification."
+            description="Scan your passport or ID card to create your digital travel identity card with a unique QR code for verification."
             action={
               <Link to="/traveler/scan" className="btn-primary">
                 <ScanLine size={18} />
-                Scan Your Passport
+                Scan Your ID
               </Link>
             }
           />
@@ -85,8 +86,9 @@ export function TravelerIdentity() {
   const fields = [
     { label: 'Full Name', key: 'full_name', icon: User2 },
     { label: 'Nationality', key: 'nationality', icon: Globe2 },
-    { label: 'Passport Number', key: 'passport_number', icon: FileText },
-    { label: 'Passport Type', key: 'passport_type', icon: FileText },
+    { label: 'Document', key: 'document_label', icon: FileText },
+    { label: documentNumberLabel(identity.document_type), key: 'passport_number', icon: FileText },
+    { label: identity.document_type === 'passport' ? 'Passport Type' : 'Document Code', key: 'passport_type', icon: FileText },
     { label: 'Date of Birth', key: 'date_of_birth', icon: Calendar },
     { label: 'Gender', key: 'gender', icon: User2 },
     { label: 'Place of Birth', key: 'place_of_birth', icon: Globe2 },
@@ -128,7 +130,7 @@ export function TravelerIdentity() {
                 </div>
 
                 <div className="flex items-center justify-center my-6">
-                  <QRCodeCard token={identity.qr_token} size={170} />
+                  <QRCodeCard token={identity.qr_token} size={170} shareName={identity.full_name} />
                 </div>
 
                 <div className="space-y-3 pt-4 border-t border-white/10">
@@ -142,7 +144,7 @@ export function TravelerIdentity() {
                       <p className="text-sm font-medium">{identity.nationality}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-navy-400 uppercase tracking-wider">Passport No.</p>
+                      <p className="text-[10px] text-navy-400 uppercase tracking-wider">{identity.document_type === 'passport' ? 'Passport No.' : 'ID No.'}</p>
                       <p className="text-sm font-mono text-turquoise-300">{identity.passport_number}</p>
                     </div>
                   </div>
@@ -170,7 +172,7 @@ export function TravelerIdentity() {
                   <div className="min-w-0">
                     <p className="text-xs text-navy-400 font-medium">{field.label}</p>
                     <p className="text-sm text-navy-900 font-medium mt-0.5 truncate">
-                      {(identity as unknown as Record<string, string | null>)[field.key] || '—'}
+                      {field.key === 'document_label' ? getDocumentType(identity.document_type).label : (identity as unknown as Record<string, string | null>)[field.key] || '—'}
                     </p>
                   </div>
                 </div>
@@ -190,7 +192,7 @@ export function TravelerIdentity() {
       {/* Edit Modal */}
       <Modal open={editing} onClose={() => setEditing(false)} title="Edit Identity Information" maxWidth="max-w-2xl">
         <div className="grid sm:grid-cols-2 gap-4">
-          {fields.map((field) => (
+          {fields.filter((f) => f.key !== 'document_label').map((field) => (
             <div key={field.key}>
               <label className="label">{field.label}</label>
               <input
