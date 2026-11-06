@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start';
 import { requireSupabaseAuth } from '@/integrations/supabase/auth-middleware';
-import { parseIdCardMrz, parsePassportText } from '@/lib/mrz';
-import { isDocumentType, parseEgyptianNationalId, toLatinDigits, type DocumentType } from '@/lib/id-documents';
+import { isDocumentType, type DocumentType } from '@/lib/id-documents';
+import { applyDocumentChecks, FIELD_KEYS, type Extracted, type FieldKey } from '@/lib/document-checks';
 
 export type OcrResponse =
   | { ok: true; data: Record<string, string | number>; confidence: number }
@@ -9,23 +9,7 @@ export type OcrResponse =
 
 const MAX_IMAGE_CHARS = 8_000_000; // ~6 MB image as a data URL
 
-const FIELD_KEYS = [
-  'full_name',
-  'nationality',
-  'passport_number',
-  'passport_type',
-  'date_of_birth',
-  'gender',
-  'place_of_birth',
-  'issue_date',
-  'expiry_date',
-  'issuing_country',
-  'mrz_line_1',
-  'mrz_line_2',
-  'mrz_line_3',
-] as const;
 
-type FieldKey = (typeof FIELD_KEYS)[number];
 
 /** What the AI is told for each document type. */
 const DOCUMENT_PROMPTS: Record<DocumentType, { name: string; check: string; fields: Partial<Record<FieldKey, string>>; extra: string }> = {
@@ -100,7 +84,6 @@ function schemaFor(type: DocumentType) {
   };
 }
 
-type Extracted = Record<FieldKey, string> & { matches_document: boolean };
 
 function readOutputText(response: unknown): string {
   const output = (response as { output?: Array<{ type?: string; content?: Array<{ type?: string; text?: string }> }> }).output;
@@ -119,52 +102,6 @@ const WRONG_DOCUMENT_MESSAGE: Record<DocumentType, string> = {
   national_id: 'This does not look like a national ID card. Photograph the front of the card, or pick a different document type.',
   id_card: 'This does not look like an ID card. Photograph the card (the side with the code lines is best), or pick a different document type.',
 };
-
-/** Cross-checks the AI result with the document's own check digits and fills in trusted values. */
-export function applyDocumentChecks(type: DocumentType, extracted: Extracted): { result: Record<string, string | number>; confidence: number } {
-  const result: Record<string, string | number> = {};
-  for (const key of FIELD_KEYS) {
-    if (key.startsWith('mrz_')) continue;
-    const value = (extracted[key] || '').trim();
-    if (value) result[key] = value;
-  }
-  result.document_type = type;
-  let confidence = 0.75;
-
-  const mrzText = [extracted.mrz_line_1, extracted.mrz_line_2, extracted.mrz_line_3].filter(Boolean).join('\n');
-  const parsed = !mrzText ? null : type === 'passport' ? parsePassportText(mrzText) : parseIdCardMrz(mrzText);
-  if (parsed) {
-    const checks = Number(parsed.mrz_checks_passed || 0);
-    if (checks === 3) {
-      for (const key of ['passport_number', 'nationality', 'date_of_birth', 'expiry_date', 'gender', 'issuing_country'] as const) {
-        const v = parsed[key];
-        if (typeof v === 'string' && v) result[key] = v;
-      }
-      if (!result.full_name && typeof parsed.full_name === 'string' && parsed.full_name) result.full_name = parsed.full_name;
-      confidence = 0.95;
-    } else if (checks >= 2) {
-      confidence = 0.85;
-    }
-  }
-
-  if (type === 'national_id') {
-    result.passport_type = 'NID';
-    const nid = typeof result.passport_number === 'string' ? parseEgyptianNationalId(result.passport_number) : null;
-    if (nid) {
-      // The Egyptian number itself encodes birth date, gender and birth governorate.
-      result.passport_number = nid.number;
-      result.date_of_birth = nid.date_of_birth;
-      result.gender = nid.gender;
-      result.nationality = result.nationality || 'EGY';
-      result.issuing_country = result.issuing_country || 'EGY';
-      if (!result.place_of_birth) result.place_of_birth = nid.governorate;
-      confidence = Math.max(confidence, 0.9);
-    } else if (typeof result.passport_number === 'string') {
-      result.passport_number = toLatinDigits(result.passport_number).replace(/\s+/g, '');
-    }
-  }
-  return { result, confidence };
-}
 
 /** Reads a passport, national ID or ID card photo with Lovable AI. Only signed-in users can call it. */
 export const extractPassport = createServerFn({ method: 'POST' })
