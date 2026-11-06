@@ -4,7 +4,7 @@ import { parseIdCardMrz } from '@/lib/mrz';
 import { applyDocumentChecks, FIELD_KEYS, type Extracted } from '@/lib/document-checks';
 
 function extracted(fields: Partial<Extracted>): Extracted {
-  const base = Object.fromEntries(FIELD_KEYS.map((k) => [k, ''])) as Extracted;
+  const base = Object.fromEntries(FIELD_KEYS.map((k) => [k, ''])) as unknown as Extracted;
   return { ...base, matches_document: true, ...fields };
 }
 

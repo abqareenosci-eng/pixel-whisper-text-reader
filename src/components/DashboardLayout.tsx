@@ -16,7 +16,6 @@ const navByRole: Record<UserRole, NavItem[]> = {
   traveler: [
     { label: 'Dashboard', path: '/traveler', icon: LayoutDashboard },
     { label: 'My Identity', path: '/traveler/identity', icon: IdCard },
-    { label: 'Book a Trip', path: '/traveler/book', icon: Ticket },
     { label: 'Scan ID', path: '/traveler/scan', icon: ScanLine },
     { label: 'My Trips', path: '/traveler/trips', icon: Plane },
     { label: 'Verification History', path: '/traveler/verifications', icon: ShieldCheck },
@@ -26,8 +25,6 @@ const navByRole: Record<UserRole, NavItem[]> = {
     { label: 'Dashboard', path: '/business', icon: LayoutDashboard },
     { label: 'Scan & Verify', path: '/business/scan', icon: ScanLine },
     { label: 'Bookings', path: '/business/bookings', icon: Calendar },
-    { label: 'Partner Confirmations', path: '/business/confirmations', icon: Send },
-    { label: 'Integrations', path: '/business/integrations', icon: Plug },
     { label: 'Verification History', path: '/business/verifications', icon: ShieldCheck },
     { label: 'Mismatch Reports', path: '/business/reports', icon: AlertTriangle },
     { label: 'Settings', path: '/business/settings', icon: Settings },
@@ -44,7 +41,7 @@ const navByRole: Record<UserRole, NavItem[]> = {
 
 import {
   LayoutDashboard, IdCard, ScanLine, Plane, ShieldCheck, Settings,
-  Calendar, AlertTriangle, Users, Ticket, Send, Plug,
+  Calendar, AlertTriangle, Users,
 } from 'lucide-react';
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
