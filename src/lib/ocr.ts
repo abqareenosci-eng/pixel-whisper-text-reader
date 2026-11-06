@@ -1,5 +1,6 @@
 import { compressImage } from '@/lib/image';
 import { extractPassport, type OcrResponse } from '@/lib/ocr.functions';
+import { getDocumentType, type DocumentType } from '@/lib/id-documents';
 
 export type { OcrResponse };
 
@@ -7,9 +8,11 @@ export type { OcrResponse };
 export async function scanPassport(
   image: File,
   onProgress?: (progress: number, status: string) => void,
+  documentType: DocumentType = 'passport',
 ): Promise<OcrResponse> {
+  const label = getDocumentType(documentType).label.toLowerCase();
   if (!(image instanceof Blob) || (!image.type.startsWith('image/') && !/\.(heic|heif)$/i.test(image.name))) {
-    return { ok: false, code: 'BAD_IMAGE', message: 'Choose a valid passport image (JPG or PNG).' };
+    return { ok: false, code: 'BAD_IMAGE', message: `Choose a valid ${label} photo (JPG or PNG).` };
   }
 
   onProgress?.(10, 'Preparing photo');
@@ -23,20 +26,21 @@ export async function scanPassport(
     return { ok: false, code: 'BAD_IMAGE', message: 'This photo format is not supported on this device. Please use a JPG or PNG image.' };
   }
 
-  onProgress?.(40, 'Reading passport');
+  const status = `Reading ${label}`;
+  onProgress?.(40, status);
   // Smoothly advance the bar while waiting for the server.
   let pct = 40;
   const timer = setInterval(() => {
     pct = Math.min(92, pct + 4);
-    onProgress?.(pct, 'Reading passport');
+    onProgress?.(pct, status);
   }, 600);
   try {
-    const result = await extractPassport({ data: { image: dataUrl } });
+    const result = await extractPassport({ data: { image: dataUrl, documentType } });
     onProgress?.(100, 'Done');
     return result;
   } catch (error) {
-    console.error('Passport scan request failed', error);
-    return { ok: false, code: 'FAILED', message: 'We could not reach the passport reader. Check your connection and try again, or enter your details manually.' };
+    console.error('Document scan request failed', error);
+    return { ok: false, code: 'FAILED', message: 'We could not reach the document reader. Check your connection and try again, or enter your details manually.' };
   } finally {
     clearInterval(timer);
   }
