@@ -19,6 +19,10 @@ export type Database = {
           amount: number | null
           booking_reference: string
           business_id: string
+          checkout_method: string | null
+          checkout_paid_at: string | null
+          checkout_payer_hint: string | null
+          checkout_reference: string | null
           created_at: string
           currency: string
           destination: string | null
@@ -31,6 +35,7 @@ export type Database = {
           id: string
           identity_id: string | null
           notes: string | null
+          offer_id: string | null
           origin: string | null
           paid_at: string | null
           payment_method: string | null
@@ -50,6 +55,10 @@ export type Database = {
           amount?: number | null
           booking_reference?: string
           business_id: string
+          checkout_method?: string | null
+          checkout_paid_at?: string | null
+          checkout_payer_hint?: string | null
+          checkout_reference?: string | null
           created_at?: string
           currency?: string
           destination?: string | null
@@ -62,6 +71,7 @@ export type Database = {
           id?: string
           identity_id?: string | null
           notes?: string | null
+          offer_id?: string | null
           origin?: string | null
           paid_at?: string | null
           payment_method?: string | null
@@ -81,6 +91,10 @@ export type Database = {
           amount?: number | null
           booking_reference?: string
           business_id?: string
+          checkout_method?: string | null
+          checkout_paid_at?: string | null
+          checkout_payer_hint?: string | null
+          checkout_reference?: string | null
           created_at?: string
           currency?: string
           destination?: string | null
@@ -93,6 +107,7 @@ export type Database = {
           id?: string
           identity_id?: string | null
           notes?: string | null
+          offer_id?: string | null
           origin?: string | null
           paid_at?: string | null
           payment_method?: string | null
@@ -124,6 +139,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bookings_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "travel_offers"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "bookings_payment_reviewed_by_fkey"
             columns: ["payment_reviewed_by"]
             isOneToOne: false
@@ -135,6 +157,41 @@ export type Database = {
             columns: ["traveler_user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_integrations: {
+        Row: {
+          business_id: string
+          connected_at: string
+          id: string
+          key_hint: string
+          provider: string
+          status: string
+        }
+        Insert: {
+          business_id: string
+          connected_at?: string
+          id?: string
+          key_hint?: string
+          provider: string
+          status?: string
+        }
+        Update: {
+          business_id?: string
+          connected_at?: string
+          id?: string
+          key_hint?: string
+          provider?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "business_integrations_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
             referencedColumns: ["id"]
           },
         ]
@@ -153,6 +210,7 @@ export type Database = {
           user_id: string
           verified: boolean
           vodafone_cash_number: string | null
+          wallet_balance: number
         }
         Insert: {
           address?: string | null
@@ -167,6 +225,7 @@ export type Database = {
           user_id: string
           verified?: boolean
           vodafone_cash_number?: string | null
+          wallet_balance?: number
         }
         Update: {
           address?: string | null
@@ -181,6 +240,7 @@ export type Database = {
           user_id?: string
           verified?: boolean
           vodafone_cash_number?: string | null
+          wallet_balance?: number
         }
         Relationships: [
           {
@@ -334,6 +394,61 @@ export type Database = {
           },
         ]
       }
+      partner_shares: {
+        Row: {
+          business_id: string
+          confirmed_at: string | null
+          id: string
+          identity_id: string | null
+          partner: string
+          sent_at: string
+          status: string
+          traveler_user_id: string
+        }
+        Insert: {
+          business_id: string
+          confirmed_at?: string | null
+          id?: string
+          identity_id?: string | null
+          partner: string
+          sent_at?: string
+          status?: string
+          traveler_user_id: string
+        }
+        Update: {
+          business_id?: string
+          confirmed_at?: string | null
+          id?: string
+          identity_id?: string | null
+          partner?: string
+          sent_at?: string
+          status?: string
+          traveler_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_shares_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_shares_identity_id_fkey"
+            columns: ["identity_id"]
+            isOneToOne: false
+            referencedRelation: "identities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "partner_shares_traveler_user_id_fkey"
+            columns: ["traveler_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -360,6 +475,59 @@ export type Database = {
           role?: string | null
         }
         Relationships: []
+      }
+      travel_offers: {
+        Row: {
+          active: boolean
+          business_id: string
+          created_at: string
+          currency: string
+          description: string | null
+          destination: string
+          id: string
+          nights: number | null
+          origin: string | null
+          price: number
+          service_type: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          business_id: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          destination: string
+          id?: string
+          nights?: number | null
+          origin?: string | null
+          price: number
+          service_type?: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          business_id?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          destination?: string
+          id?: string
+          nights?: number | null
+          origin?: string | null
+          price?: number
+          service_type?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "travel_offers_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -440,6 +608,54 @@ export type Database = {
           },
         ]
       }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          business_id: string
+          created_at: string
+          id: string
+          kind: string
+          note: string | null
+          verification_id: string | null
+        }
+        Insert: {
+          amount: number
+          balance_after: number
+          business_id: string
+          created_at?: string
+          id?: string
+          kind: string
+          note?: string | null
+          verification_id?: string | null
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          business_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          note?: string | null
+          verification_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_business_id_fkey"
+            columns: ["business_id"]
+            isOneToOne: false
+            referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "wallet_transactions_verification_id_fkey"
+            columns: ["verification_id"]
+            isOneToOne: false
+            referencedRelation: "verifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -449,10 +665,20 @@ export type Database = {
         Args: { _identity_id: string; _verified: boolean }
         Returns: undefined
       }
+      checkout_book_offer: {
+        Args: {
+          _method: string
+          _offer_id: string
+          _payer_hint: string
+          _start_date: string
+        }
+        Returns: Json
+      }
       choose_initial_role: {
         Args: { _full_name: string; _role: string }
         Returns: undefined
       }
+      confirm_partner_share: { Args: { _share_id: string }; Returns: undefined }
       fawry_apply_status: {
         Args: {
           _booking_id: string
@@ -480,10 +706,33 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      list_travel_offers: {
+        Args: never
+        Returns: {
+          business_id: string
+          business_name: string
+          business_type: string
+          city: string
+          country: string
+          currency: string
+          description: string
+          destination: string
+          id: string
+          nights: number
+          origin: string
+          price: number
+          service_type: string
+          title: string
+        }[]
+      }
       owns_booking_business: { Args: { _booking_id: string }; Returns: boolean }
       review_booking_payment: {
         Args: { _booking_id: string; _decision: string; _reason?: string }
         Returns: undefined
+      }
+      send_traveler_to_partners: {
+        Args: { _partners: string[]; _traveler_user_id: string }
+        Returns: number
       }
       submit_booking_payment: {
         Args: {
@@ -499,6 +748,7 @@ export type Database = {
         Returns: boolean
       }
       verify_traveler_qr: { Args: { _token: string }; Returns: Json }
+      wallet_top_up: { Args: { _amount: number }; Returns: number }
     }
     Enums: {
       app_role: "traveler" | "business" | "admin"
