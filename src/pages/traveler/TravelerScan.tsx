@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link, useNavigate } from '@/lib/router-compat';
-import { ScanLine, Upload, FileText, CheckCircle2, AlertCircle, Save, RotateCcw, Camera, Loader2, Info } from 'lucide-react';
+import { ScanLine, Upload, FileText, CheckCircle2, AlertCircle, Save, RotateCcw, Camera, Loader2, Info, BookOpen, IdCard, CreditCard, ArrowLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -8,6 +8,9 @@ import { Card, Spinner, Toast } from '@/components/ui';
 import type { OCRResult } from '@/types';
 import { scanPassport } from '@/lib/ocr';
 import { compressImage } from '@/lib/image';
+import { DOCUMENT_TYPES, getDocumentType, type DocumentType } from '@/lib/id-documents';
+
+const DOC_ICONS: Record<DocumentType, typeof BookOpen> = { passport: BookOpen, national_id: IdCard, id_card: CreditCard };
 
 export function TravelerScan() {
   const { profile } = useAuth();
@@ -17,7 +20,10 @@ export function TravelerScan() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  const [step, setStep] = useState<'upload' | 'processing' | 'review' | 'saved'>('upload');
+  const [step, setStep] = useState<'choose' | 'upload' | 'processing' | 'review' | 'saved'>('choose');
+  const [docType, setDocType] = useState<DocumentType>('passport');
+  const doc = getDocumentType(docType);
+  const docLabel = doc.label.toLowerCase();
   const [ocrData, setOcrData] = useState<OCRResult>({});
   const [imagePreview, setImagePreview] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +33,7 @@ export function TravelerScan() {
   const handleFile = async (file: File) => {
     setError(null);
     if (!file.type.startsWith('image/') && !/\.(heic|heif)$/i.test(file.name)) {
-      setError('Please choose a photo (JPG or PNG) of your passport page.');
+      setError(`Please choose a photo (JPG or PNG) of your ${docLabel}.`);
       setOcrData({});
       setStep('review');
       return;
@@ -37,14 +43,14 @@ export function TravelerScan() {
       const { dataUrl } = await compressImage(file);
       setImagePreview(dataUrl);
       setOcrProgress(0);
-      const result = await scanPassport(file, (progress, status) => { setOcrProgress(progress); setOcrStatus(status); });
+      const result = await scanPassport(file, (progress, status) => { setOcrProgress(progress); setOcrStatus(status); }, docType);
       if (!result.ok) {
         setError(result.message);
         setOcrData({});
       } else {
         setOcrData(result.data as OCRResult);
         const filled = ['full_name', 'passport_number', 'nationality', 'date_of_birth'].filter((k) => (result.data as Record<string, unknown>)[k]);
-        if (filled.length < 2) setError('We could only read part of the passport. Please check and fill in the missing fields.');
+        if (filled.length < 2) setError(`We could only read part of the ${docLabel}. Please check and fill in the missing fields.`);
       }
     } catch (e) {
       console.error(e);
@@ -57,14 +63,14 @@ export function TravelerScan() {
   const startManual = () => {
     setError(null);
     setImagePreview('');
-    setOcrData({ full_name: profile?.full_name || '' });
+    setOcrData({ full_name: profile?.full_name || '', document_type: docType });
     setStep('review');
   };
 
   const handleSave = async () => {
     if (!profile) return;
     if (!ocrData.full_name?.trim() || !ocrData.passport_number?.trim() || !ocrData.nationality?.trim()) {
-      setError('Full name, passport number and nationality are required.');
+      setError(`Full name, ${doc.numberLabel.toLowerCase()} and nationality are required.`);
       return;
     }
     setSaving(true);
@@ -91,7 +97,7 @@ export function TravelerScan() {
         issue_date: ocrData.issue_date || null,
         expiry_date: ocrData.expiry_date || null,
         issuing_country: ocrData.issuing_country || null,
-        document_type: ocrData.document_type || 'passport',
+        document_type: docType,
       })
       .select()
       .maybeSingle();
@@ -109,7 +115,7 @@ export function TravelerScan() {
   };
 
   const reset = () => {
-    setStep('upload');
+    setStep('choose');
     setOcrData({});
     setImagePreview('');
     setError(null);
@@ -118,8 +124,8 @@ export function TravelerScan() {
   const fields: { key: keyof OCRResult; label: string; type?: string }[] = [
     { key: 'full_name', label: 'Full Name' },
     { key: 'nationality', label: 'Nationality' },
-    { key: 'passport_number', label: 'Passport Number' },
-    { key: 'passport_type', label: 'Passport Type' },
+    { key: 'passport_number', label: doc.numberLabel },
+    { key: 'passport_type', label: docType === 'passport' ? 'Passport Type' : 'Document Code' },
     { key: 'date_of_birth', label: 'Date of Birth', type: 'date' },
     { key: 'gender', label: 'Gender' },
     { key: 'place_of_birth', label: 'Place of Birth' },
@@ -133,13 +139,57 @@ export function TravelerScan() {
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-navy-900">Scan Passport</h1>
-        <p className="text-navy-500 mt-1">Upload a photo of your passport to extract information automatically</p>
+        <h1 className="text-2xl font-bold text-navy-900">Scan Your ID</h1>
+        <p className="text-navy-500 mt-1">Choose your document, then upload a photo to fill in your details automatically</p>
       </div>
 
       <div className="max-w-3xl mx-auto">
+        {step === 'choose' && (
+          <Card className="animate-fade-in">
+            <p className="eyebrow text-turquoise-700">Step 1 of 2</p>
+            <h3 className="text-lg font-bold text-navy-900 mt-1">Which document are you scanning?</h3>
+            <p className="text-sm text-navy-500 mt-1">The reader adjusts to the layout of the document you pick.</p>
+            <div className="grid gap-3 mt-6" role="radiogroup" aria-label="Document type">
+              {DOCUMENT_TYPES.map((d) => {
+                const Icon = DOC_ICONS[d.id];
+                const selected = docType === d.id;
+                return (
+                  <button
+                    key={d.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={selected}
+                    onClick={() => setDocType(d.id)}
+                    className={`flex items-center gap-4 rounded-2xl border p-4 text-left transition-all ${selected ? 'border-turquoise-500 bg-turquoise-50 ring-2 ring-turquoise-200' : 'border-navy-200 hover:border-turquoise-300 hover:bg-navy-50'}`}
+                  >
+                    <span className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl ${selected ? 'bg-turquoise-600 text-white' : 'bg-navy-100 text-navy-500'}`}>
+                      <Icon size={22} />
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block font-semibold text-navy-900">{d.label}</span>
+                      <span className="block text-sm text-navy-500">{d.description}</span>
+                    </span>
+                    <span className={`h-5 w-5 flex-shrink-0 rounded-full border-2 ${selected ? 'border-turquoise-600 bg-turquoise-600 shadow-[inset_0_0_0_3px_var(--card)]' : 'border-navy-300'}`} />
+                  </button>
+                );
+              })}
+            </div>
+            <button type="button" onClick={() => setStep('upload')} className="btn-primary w-full mt-6">
+              Continue with {doc.label}
+              <ChevronRight size={18} />
+            </button>
+          </Card>
+        )}
+
         {step === 'upload' && (
           <Card className="animate-fade-in">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <button type="button" onClick={() => setStep('choose')} className="inline-flex items-center gap-1.5 text-sm font-medium text-navy-500 hover:text-navy-800">
+                <ArrowLeft size={16} />
+                Change document
+              </button>
+              <span className="badge-info">{doc.label}</span>
+            </div>
             <div
               className="border-2 border-dashed border-navy-200 rounded-2xl p-12 text-center hover:border-turquoise-400 hover:bg-turquoise-50/30 transition-all cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
@@ -152,9 +202,9 @@ export function TravelerScan() {
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-turquoise-500 to-turquoise-700 flex items-center justify-center mx-auto mb-6">
                 <ScanLine size={36} className="text-white" />
               </div>
-              <h3 className="text-lg font-bold text-navy-900">Upload your passport photo</h3>
+              <h3 className="text-lg font-bold text-navy-900">Upload your {docLabel} photo</h3>
               <p className="text-navy-500 mt-2 max-w-md mx-auto">
-                Drag and drop a clear photo of your passport's data page, or click to browse. The photo page with your photo and MRZ text works best.
+                Drag and drop a clear photo, or click to browse. {doc.description}
               </p>
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
@@ -190,7 +240,7 @@ export function TravelerScan() {
             <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-xl bg-navy-50 border border-navy-100">
               <p className="text-sm text-navy-600 flex items-start gap-2">
                 <Info size={16} className="text-turquoise-600 flex-shrink-0 mt-0.5" />
-                Tip: lay the passport flat in good light so the two lines of code at the bottom are sharp.
+                Tip: {doc.tip}
               </p>
               <button type="button" onClick={startManual} className="text-sm font-semibold text-turquoise-700 hover:text-turquoise-800 whitespace-nowrap">
                 Enter details manually
@@ -205,12 +255,12 @@ export function TravelerScan() {
               <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-turquoise-500 to-turquoise-700 flex items-center justify-center mb-6">
                 <Loader2 size={36} className="text-white animate-spin" />
               </div>
-              <h3 className="text-lg font-bold text-navy-900">Scanning your passport...</h3>
+              <h3 className="text-lg font-bold text-navy-900">Scanning your {docLabel}...</h3>
               <p className="text-navy-500 mt-2">{ocrStatus} · {ocrProgress}%</p>
               <div className="w-full max-w-xs h-2 rounded-full bg-navy-100 mt-4 overflow-hidden"><div className="h-full bg-turquoise-500 transition-all" style={{ width: `${ocrProgress}%` }} /></div>
               <p className="text-xs text-navy-400 mt-2">Your photo is read securely by Lovable AI and is not stored.</p>
               {imagePreview && (
-                <img src={imagePreview} alt="Passport" className="mt-6 max-h-48 rounded-xl border border-navy-200" />
+                <img src={imagePreview} alt={doc.label} className="mt-6 max-h-48 rounded-xl border border-navy-200" />
               )}
             </div>
           </Card>
@@ -226,17 +276,17 @@ export function TravelerScan() {
               )}
               <div>
                 <h3 className="text-lg font-bold text-navy-900">
-                  {error ? 'Please check your details' : imagePreview ? 'Review Extracted Information' : 'Enter your passport details'}
+                  {error ? 'Please check your details' : imagePreview ? 'Review Extracted Information' : `Enter your ${docLabel} details`}
                 </h3>
                 <p className="text-sm text-navy-500 mt-1">
-                  {error ? error : imagePreview ? 'Please review the extracted data and correct any errors before saving.' : 'Type the details exactly as they appear on your passport.'}
+                  {error ? error : imagePreview ? 'Please review the extracted data and correct any errors before saving.' : `Type the details exactly as they appear on your ${docLabel}.`}
                 </p>
               </div>
             </div>
 
             {imagePreview && (
               <div className="mb-6 flex justify-center">
-                <img src={imagePreview} alt="Passport" className="max-h-48 rounded-xl border border-navy-200" />
+                <img src={imagePreview} alt={doc.label} className="max-h-48 rounded-xl border border-navy-200" />
               </div>
             )}
 

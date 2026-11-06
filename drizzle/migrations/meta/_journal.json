@@ -36,6 +36,13 @@
       "when": 1793917898977,
       "tag": "0004_fawry_and_business_payment_details",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793962794804,
+      "tag": "0005_wallet_checkout_partners_integrations",
+      "breakpoints": true
     }
   ]
 }
