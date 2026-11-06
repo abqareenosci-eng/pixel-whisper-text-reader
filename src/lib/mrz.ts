@@ -102,6 +102,54 @@ export function parsePassportText(text: string): Record<string, unknown> {
   return result;
 }
 
+/**
+ * Parses the 3-line (30 characters each) MRZ used on ID cards (ICAO TD1).
+ * Returns null when no TD1 block is found.
+ */
+export function parseIdCardMrz(text: string): Record<string, unknown> | null {
+  const lines = text
+    .split(/\r?\n/)
+    .map(normalizeMrzLine)
+    .filter((l) => l.length >= 25 && l.length <= 34 && MRZ_CHARS.test(l))
+    .map((l) => l.padEnd(30, "<").slice(0, 30));
+
+  for (let i = 0; i + 2 < lines.length; i++) {
+    const [l1, l2, l3] = [lines[i], lines[i + 1], lines[i + 2]];
+    if (!/^[ACI]/.test(l1) || !/^\d{6}/.test(l2)) continue;
+
+    const docNumberRaw = l1.substring(5, 14);
+    const docNumberCheck = l1[14];
+    const birthRaw = l2.substring(0, 6);
+    const birthCheck = l2[6];
+    const sex = l2[7];
+    const expiryRaw = l2.substring(8, 14);
+    const expiryCheck = l2[14];
+    const names = l3.split("<<");
+    const surname = (names[0] || "").replace(/</g, " ").trim();
+    const givenNames = (names[1] || "").replace(/</g, " ").trim();
+
+    const result: Record<string, unknown> = {
+      document_type: "id_card",
+      passport_type: l1.substring(0, 2).replace(/</g, ""),
+      issuing_country: l1.substring(2, 5).replace(/</g, ""),
+      passport_number: docNumberRaw.replace(/</g, ""),
+      nationality: l2.substring(15, 18).replace(/</g, ""),
+      gender: sex === "M" || sex === "F" ? sex : "",
+      full_name: [givenNames, surname].filter(Boolean).join(" "),
+    };
+    if (/^\d{6}$/.test(birthRaw)) result.date_of_birth = formatMrzDate(birthRaw, false);
+    if (/^\d{6}$/.test(expiryRaw)) result.expiry_date = formatMrzDate(expiryRaw, true);
+    const checks = [
+      checkOk(docNumberRaw, docNumberCheck),
+      checkOk(birthRaw, birthCheck),
+      checkOk(expiryRaw, expiryCheck),
+    ];
+    result.mrz_checks_passed = checks.filter(Boolean).length;
+    return result;
+  }
+  return null;
+}
+
 function formatMrzDate(yyMMdd: string, isExpiry: boolean): string {
   const yy = parseInt(yyMMdd.substring(0, 2), 10);
   const mm = yyMMdd.substring(2, 4);
